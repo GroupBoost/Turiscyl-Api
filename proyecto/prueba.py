@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+reload(sys)
+sys.setdefaultencoding("utf8")
 import web
+import json
 from shapely.geometry import Point
 from shapely.geometry import MultiLineString
 from shapely.geometry import MultiPolygon
@@ -40,7 +44,7 @@ print "datos cargados\n"
 
 urls = (
 	'/sendas/', 'listaSendas',
-	'/sendas/(.*)', 'sendas',
+	'/sendaId/(.*)', 'sendaId',
 	'/espacios/(.*)', 'espacios',
 	'/(.*)', 'basura'
 )
@@ -49,6 +53,7 @@ app = web.application(urls, globals())
 
 class listaSendas:
 	def GET(self):
+		web.header("Content-Type","application/json; charset=utf-8")
 		print lSendas
 		aux = []
 		for senda in lSendas :
@@ -60,17 +65,18 @@ class listaSendas:
 
 		dicc["status"] = 200
 		dicc["lista"] = aux
-		return dicc
+		return json.dumps(dicc)
 			
 
-class sendas:
-	def GET(self, senda_id):
+class sendaId:
+	def GET(self, idSenda):
+		web.header("Content-Type","application/json; charset=utf-8")
 		dicc = {}
-		senda_id = int(senda_id)
+		senda_id = int(idSenda)
 
 		if not senda_id in identificadoresSendas :
 			dicc["status"] = 500
-			return dicc
+			return json.dumps(dicc)
 
 		lista = []
 		lat = "lat"
@@ -95,16 +101,17 @@ class sendas:
 			
 		dicc["status"] = 200
 		dicc["geometry"] = aux4
-		return dicc
+		return json.dumps(dicc)
 
 class espacios :
 	def GET(self, espacio_id) :
+		web.header("Content-Type","application/json; charset=utf-8")
 		espacio_id = int(espacio_id)
 		dicc = {}
 	
 		if espacio_id >= len(lEspacios) - 1 :
 			dicc["status"] = 123
-			return dicc
+			return json.dumps(dicc)
 
 		lista = []
 		lat = "lat"
@@ -137,7 +144,7 @@ class espacios :
 			lista.append(dicc2)
 		dicc["status"] = 200	
 		dicc["geometry"] = lista
-		return dicc
+		return json.dumps(dicc)
 
 class basura:
 	def GET(self, basura):
